@@ -89,7 +89,7 @@
       },
       
       _computeContracts: function(apiDataChange) {
-        let apiData = apiDataChange.base;
+        var apiData = apiDataChange.base;
         if(!apiData) return;
         return apiData.map(this._parseApiDataItemContract, this);
       },
