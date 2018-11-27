@@ -1,0 +1,142 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+<dom-module id="caas-contracts">
+  <template>
+
+      <iron-ajax
+        id="getItems"
+        headers="[[_requestHeaders]]"
+        url="[[apiEndpoint]]/entrepreneurs/[[campaignId]]/contracts"
+        method="GET"
+        last-response="{{_apiData}}"
+        debounce-duration="500"
+        auto="[[autoDownload]]"
+        loading="{{loadingContracts}}"
+        params="[[_queryParams]]"
+      ></iron-ajax>
+      
+      <iron-ajax
+        id="updateItem"
+        headers="[[_requestHeaders]]"
+        method="PUT"
+        on-request="_handleUpdateItemRequest"
+        on-response="_handleUpdateItemResponse"
+        on-error="_handleUpdateItemError"
+        debounce-duration="500"
+      ></iron-ajax>
+      
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'caas-contracts',
+
+      properties: {
+
+        apiEndpoint: {
+          type: String,
+          value: null
+        },
+
+        accessToken: {
+          type: String,
+          value: null,
+          notify: true
+        },
+
+        loadingContracts: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        autoDownload: {
+          type: Boolean,
+          value: false
+        },
+
+        contracts: {
+          type: Array,
+          notify: true,
+          computed: '_computeContracts(_apiData.*)'
+        },
+
+        _requestHeaders: {
+          type: Object,
+          computed: '_computeRequestHeaders(accessToken, activeRole)'
+        },
+
+        _apiData: {
+          type: Array
+        },
+
+        activeRole: String,
+        campaignId: Number
+
+      },
+      
+      _computeRequestHeaders: function(accessToken, activeRole) {
+        return {
+          'authorization': 'Bearer ' + accessToken,
+          'activeRole': activeRole
+        }
+      },
+
+      getItems: function() {
+        this.$.getItems.generateRequest();
+      },
+      
+      _computeContracts: function(apiDataChange) {
+        let apiData = apiDataChange.base;
+        if(!apiData) return;
+        return apiData.map(this._parseApiDataItemContract, this);
+      },
+
+      _parseApiDataItemContract: function(apiDataItem) {
+        return {
+          id: apiDataItem.id,
+          investorId: apiDataItem.investorId,
+          emailAddress: apiDataItem.emailAddress,
+          contractType: apiDataItem.contractType,
+          creationDateTime: apiDataItem.creationDateTime,
+          deadlineDate: apiDataItem.deadlineDate,
+          finalPaymentDate: apiDataItem.finalPaymentDate,
+          firstName: apiDataItem.firstName,
+          firstPaymentDate: apiDataItem.firstPaymentDate,
+          incentive: apiDataItem.incentive,
+          investment: apiDataItem.investment,
+          lastExport: apiDataItem.lastExport,
+          lastName: apiDataItem.lastName,
+          lastUpdate: apiDataItem.lastUpdate,
+          motivationalMessage: apiDataItem.motivationalMessage,
+          ongoingInvestment: apiDataItem.ongoingInvestment,
+          pdfSlug: apiDataItem.pdfSlug,
+          privacy: apiDataItem.privacy,
+          projectNaam: apiDataItem.projectNaam,
+          relationToEntrepeneur: apiDataItem.relationToEntrepeneur,
+          returnOnInvestmentPercentage: apiDataItem.returnOnInvestmentPercentage,
+          startDate: apiDataItem.startDate,
+          status: apiDataItem.status,
+          annuity: apiDataItem.annuity,
+          statusName: apiDataItem.statusName
+        }
+  
+      },
+      updateItem: function() {
+        this.$.updateItem.generateRequest()
+      },
+      _handleUpdateItemRequest: function() {
+
+      },
+      _handleUpdateItemResponse: function() {
+
+      },
+      _handleUpdateItemError: function() {
+        
+      }
+
+    });
+  </script>
+</dom-module>
