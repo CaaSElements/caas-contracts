@@ -38,14 +38,16 @@
           ></caas-auth>
 
           <caas-contracts
-            id="accountManagerAPI"
+            id="caas-contracts"
             campaign-id="1160"
             active-role="financialadministrator"
             auto-download="[[signedIn]]"
             api-endpoint="http://can.local.api"
             access-token="[[accessToken]]"
             contracts="{{contracts}}"
-            loading-contracts="{{loadingContracts}}">
+            loading-contracts="{{loadingContracts}}"
+            on-contract-updated="_handleContractUpdated"
+            on-contract-update-error="_handleContractUpdateError">
           </caas-contracts>
 
           <app-location
@@ -73,16 +75,25 @@
             <h2>Contracts</h2>
             <div>
 
-                <iron-list
-                    items="[[contracts]]"
-                    as="contract">
+                <ul>
 
-                    <template>
-                        <div class="item">
-                         contract id: [[contract.id]] - [[contract.firstName]] investor id: [[contract.investorId]] - [[contract.emailAddress]]
-                        </div>
-                    </template>
-                </iron-list>
+                  <template 
+                    is="dom-repeat"
+                    items="{{contracts}}"
+                    index-as="contractIndex">
+                    <li>
+                        contract id: [[item.id]] | investor id: [[item.investorId]] | email: [[item.emailAddress]] | first & last name: [[item.firstName]] [[item.lastName]]
+                        <br>
+                        <form on-submit="updateItem" data-index$="[[contractIndex]]">
+                          <label>
+                            add new investor email
+                          </label>
+                          <textarea placeholder="investor email" value="{{item.emailAddress::input}}"></textarea>
+                          <input type="submit" value="Update Item">
+                        </form>
+                    </li>
+                  </template>
+                </ul>
 
             </div>
 
@@ -91,7 +102,7 @@
 
           <script>
             var demo = document.querySelector('#demo');
-
+            let contracts = document.querySelector('#caas-contracts');
             demo.signIn = function(evt) {
               evt.preventDefault();
               auth.signIn(
@@ -105,6 +116,22 @@
               evt.preventDefault();
               auth.signOut();
             }
+            
+            demo.updateItem = function(evt) {
+              evt.preventDefault();
+              let index = evt.target.getAttribute('data-index');
+              return contracts.updateItem(this.contracts[index]);
+            }
+
+            demo._handleContractUpdated = function() {
+              alert('Contract Successfully updated!');
+            }
+
+            demo._handleContractUpdateError = function(evt, error) {
+              alert('Something went wrong while updating: ' + error.message)
+            }
+          
+            
           </script>
         </template>
       </demo-snippet>

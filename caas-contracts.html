@@ -73,8 +73,8 @@
         },
 
         activeRole: String,
-        campaignId: Number
-
+        campaignId: Number,
+        responseStatus: Object
       },
       
       _computeRequestHeaders: function(accessToken, activeRole) {
@@ -89,7 +89,7 @@
       },
       
       _computeContracts: function(apiDataChange) {
-        let apiData = apiDataChange.base;
+        var apiData = apiDataChange.base;
         if(!apiData) return;
         return apiData.map(this._parseApiDataItemContract, this);
       },
@@ -124,17 +124,57 @@
         }
   
       },
-      updateItem: function() {
-        this.$.updateItem.generateRequest()
+      updateItem: function(contract) {
+        this.$.updateItem.url = this.apiEndpoint + '/financial-administrator/investors/' + contract.investorId + '/contract/' + contract.id;
+        this.$.updateItem.body = JSON.stringify(contract);
+        this.$.updateItem.generateRequest();
       },
+
       _handleUpdateItemRequest: function() {
-
+        this._setStatusResponseObject('loading', this.$.updateItem.method, this.$.updateItem.url);
       },
-      _handleUpdateItemResponse: function() {
 
+      _handleUpdateItemResponse: function(evt, data) {
+        var savedItem = evt.detail.response;
+        var toBeUpdatedArrayIndex = this._getArrayIndexByContractId(savedItem.id);
+        this._updateContractByArrayIndex(savedItem, toBeUpdatedArrayIndex);
+        this._setStatusResponseObject('success', this.$.updateItem.method, this.$.updateItem.url);
+        this.$.updateItem.url = null;
+        this.fire('contract-updated', {response: savedItem});
       },
-      _handleUpdateItemError: function() {
-        
+
+      _getArrayIndexByContractId: function(id) {
+        for (var i = 0; i < this.contracts.length; i++) {
+          if(this.contracts[i].id == id){
+            return this.contracts.indexOf(this.contracts[i]);
+          }
+        }
+      },
+
+      _updateContractByArrayIndex: function(updatedContract, arrayIndex) {
+        var updatedContract = this._parseApiDataItemContract(updatedContract);
+        if (arrayIndex != -1) {
+          return this.splice('contracts', arrayIndex, 1, updatedContract);
+        }
+      },
+
+      _handleUpdateItemError: function(evt, data) {
+        this.$.updateItem.url = null;
+        this.$.updateItem.body = {};
+        this.fire('contract-update-error', {
+          message: evt.detail.error.message,
+          response: event.detail.request.xhr.response
+        });
+        this._setStatusResponseObject('failed', this.$.updateItem.method, this.$.updateItem.url, 'Opslaan mislukt' + ((data.request.xhr.response && data.request.xhr.response.error[0]) ? ': ' + data.request.xhr.response.error[0].message : ''));
+      },
+
+      _setStatusResponseObject: function(status, method, route, error) {
+          this.set('responseStatus', {
+              status: status,
+              method: method,
+              route: route,
+              error: error
+          });
       }
 
     });
