@@ -86,9 +86,9 @@
                         <br>
                         <form on-submit="updateItem" data-index$="[[contractIndex]]">
                           <label>
-                            add new investor email
+                            add the investor id from the new owner
                           </label>
-                          <textarea placeholder="investor email" value="{{item.emailAddress::input}}"></textarea>
+                          <input type="number" placeholder="investor id" value="{{item.investorId::input}}"></input>
                           <input type="submit" value="Update Item">
                         </form>
                     </li>
