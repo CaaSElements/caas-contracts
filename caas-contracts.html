@@ -126,6 +126,7 @@
       },
       updateItem: function(contract) {
         this.$.updateItem.url = this.apiEndpoint + '/financial-administrator/investors/' + contract.investorId + '/contract/' + contract.id;
+        if (!contract.newInvestorId) return this._setStatusResponseObject('failed', this.$.updateItem.method, this.$.updateItem.url, 'Opslaan mislukt no new investor id supplied');
         this.$.updateItem.body = JSON.stringify(contract);
         this.$.updateItem.generateRequest();
       },
