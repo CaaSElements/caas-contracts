@@ -74,7 +74,10 @@
 
         activeRole: String,
         campaignId: Number,
-        responseStatus: Object
+        responseStatus: {
+          type: Object,
+          notify: true
+        }
       },
       
       _computeRequestHeaders: function(accessToken, activeRole) {
